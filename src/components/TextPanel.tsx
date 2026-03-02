@@ -5,6 +5,7 @@ interface Props {
   onChange: (value: string) => void;
   diff: DiffChunk[] | null;
   label?: string;
+  readOnly?: boolean;
 }
 
 export default function TextPanel({ value, onChange, diff, label }: Props) {
@@ -15,15 +16,15 @@ export default function TextPanel({ value, onChange, diff, label }: Props) {
       )}
 
       {diff !== null ? (
-        <div className="w-full h-48 sm:h-56 md:h-96 p-6 bg-[#F0F7FF] rounded-xl overflow-auto text-[#383A48] whitespace-pre-wrap break-words leading-relaxed text-sm">
+        <div className="w-full h-48 sm:h-56 md:h-96 p-6 bg-[#F0F7FF] rounded-xl overflow-auto text-[#383A48] whitespace-pre-wrap wrap-break-word leading-relaxed text-[18px]">
           {diff.map((chunk, index) => (
             <span
               key={index}
               className={
                 chunk.type === "added"
-                  ? "bg-green-200 text-green-900 rounded px-0.5"
+                  ? "bg-[#3EBC5E] text-white rounded px-0.5"
                   : chunk.type === "removed"
-                    ? "bg-red-200 text-red-900 line-through rounded px-0.5"
+                    ? "bg-[#B50022] text-white line-through rounded px-0.5"
                     : ""
               }
             >
@@ -36,7 +37,7 @@ export default function TextPanel({ value, onChange, diff, label }: Props) {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="დაიწყე წერა..."
-          className="w-full h-48 sm:h-56 md:h-96 p-6 bg-[#F0F7FF] rounded-xl resize-none outline-none text-[#383A4899] leading-relaxed text-sm"
+          className="w-full h-48 sm:h-56 md:h-96 p-6 bg-[#F0F7FF] rounded-xl resize-none outline-none text-[#383A4899] leading-relaxed text-[18px]"
         />
       )}
     </div>

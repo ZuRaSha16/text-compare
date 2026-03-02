@@ -30,13 +30,12 @@ function App() {
         const result = compareTexts(original, modified);
         setOriginalDiff(result.filter((c) => c.type !== "added"));
         setModifiedDiff(result.filter((c) => c.type !== "removed"));
-        // Small delay so user sees 100% before panels reappear
         setTimeout(() => setAppState("compared"), 400);
       }
     }, 200);
   };
 
-  const handleReset = () => {
+  const handleNewSession = () => {
     setAppState("editing");
     setOriginalDiff(null);
     setModifiedDiff(null);
@@ -44,6 +43,8 @@ function App() {
     setModified("");
     setProgress(0);
   };
+
+  const isDone = appState === "compared";
 
   const deletions =
     originalDiff
@@ -64,17 +65,29 @@ function App() {
             <option>ქართული</option>
             <option>English</option>
           </select>
-          <button className="bg-[#383A4899] text-white text-[14px] justify-center py-2.5 px-4 h-10 flex items-center rounded-md gap-1 cursor-pointer opacity-100 hover:opacity-70 transition duration-200 w-full md:w-auto">
+          <button
+            onClick={isDone ? handleNewSession : undefined}
+            disabled={!isDone}
+            className={`text-white text-[14px] justify-center py-2.5 px-4 h-10 flex items-center rounded-md gap-1 transition duration-200 w-full md:w-auto
+              ${
+                isDone
+                  ? "bg-[#4A6CF7] cursor-pointer "
+                  : "bg-[#383A4899] cursor-not-allowed opacity-100"
+              }`}
+          >
             <Plus size={20} />
             ახალის გახსნა
           </button>
         </div>
 
-        {/* LOADING STATE — panels hidden */}
+        {/* LOADING STATE */}
         {appState === "loading" && (
-          <div className="flex flex-col items-center justify-center py-24 gap-6">
+          <div
+            className="flex flex-col items-center justify-center gap-6"
+            style={{ height: "calc(100vh - 160px)" }}
+          >
             <div className="bg-white rounded-2xl shadow-md border border-gray-100 px-8 py-6 flex items-center gap-4 w-full max-w-sm">
-              <div className="w-10 h-10 rounded-full border-2 border-blue-500 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full border-2 border-blue-500 flex items-center justify-center shrink-0">
                 <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" />
               </div>
               <div className="flex-1">
@@ -94,13 +107,18 @@ function App() {
                 </div>
               </div>
             </div>
+            <button
+              disabled
+              className="bg-[#4A6CF7] text-white w-full md:w-40 h-12 rounded-xl shadow-md text-[14px]  transition duration-200 disabled:bg-[#383A4899] disabled:cursor-not-allowed cursor-pointer"
+            >
+              შედარება
+            </button>
           </div>
         )}
 
-        {/* TEXT PANELS — shown in editing and compared states */}
+        {/* TEXT PANELS */}
         {appState !== "loading" && (
           <>
-            {/* Stats bar (only after compare) */}
             {appState === "compared" && (
               <div className="flex justify-center mb-5">
                 <div className="text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2">
@@ -118,15 +136,13 @@ function App() {
               <div className="flex-1">
                 <TextPanel
                   value={original}
-                  onChange={(v) => {
-                    setOriginal(v);
-                  }}
+                  onChange={setOriginal}
                   diff={appState === "compared" ? originalDiff : null}
-                  label="Source Text (A):"
+                  readOnly={appState === "compared"}
                 />
               </div>
 
-              <div className="flex items-center justify-center text-2xl text-gray-400 py-1 md:py-0 md:px-2">
+              <div className="flex items-center justify-center text-2xl text-[#323232] py-1 md:py-0 md:px-2">
                 <span className="md:hidden">↕</span>
                 <span className="hidden md:inline">↔</span>
               </div>
@@ -134,24 +150,22 @@ function App() {
               <div className="flex-1">
                 <TextPanel
                   value={modified}
-                  onChange={(v) => {
-                    setModified(v);
-                  }}
+                  onChange={setModified}
                   diff={appState === "compared" ? modifiedDiff : null}
-                  label="Target Text (B):"
+                  readOnly={appState === "compared"}
                 />
               </div>
             </div>
 
-            {/* Single შედარება button always shown */}
             <div className="flex justify-center mt-6 md:mt-8">
               <button
-                onClick={appState === "compared" ? handleReset : handleCompare}
+                onClick={handleCompare}
                 disabled={
-                  appState === "editing" &&
-                  (!original.trim() || !modified.trim())
+                  appState === "compared" ||
+                  !original.trim() ||
+                  !modified.trim()
                 }
-                className="bg-[#4A6CF7] text-white w-full md:w-40 h-12 rounded-xl shadow-md cursor-pointer text-[14px] hover:opacity-80 transition duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="bg-[#4A6CF7] text-white w-full md:w-40 h-12 rounded-xl shadow-md text-[14px]  transition duration-200 disabled:bg-[#383A4899] disabled:cursor-not-allowed cursor-pointer"
               >
                 შედარება
               </button>

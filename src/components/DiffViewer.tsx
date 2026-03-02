@@ -10,9 +10,9 @@ export default function DiffViewer({ diff }: Props) {
           key={index}
           className={
             chunk.type === "added"
-              ? "bg-green-300 text-green-900"
+              ? "bg-[#3EBC5E] text-white"
               : chunk.type === "removed"
-                ? "bg-red-300 text-red-900 line-through"
+                ? "bg-[#B50022] text-white line-through"
                 : ""
           }
         >

@@ -22,7 +22,7 @@ export default function Sidebar() {
       <div className="fixed top-0 left-0 right-0 flex md:hidden bg-[#132450] text-white w-full p-4 justify-between items-center z-40">
         <div className="flex items-center gap-2">
           <img src={logo} alt="Enagram Logo" className="w-[42.65px]" />
-          <h1 className="font-bold">ENEGRAM</h1>
+          <h1 className="font-bold">ENAGRAM</h1>
         </div>
         <button onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X size={28} /> : <Menu size={28} />}

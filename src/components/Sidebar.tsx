@@ -46,7 +46,7 @@ export default function Sidebar() {
         {/* Logo */}
         <div className="flex gap-4 mb-10">
           <img src={logo} alt="Enagram Logo" className="w-[42.65px]" />
-          <h1 className="my-2 font-bold">ENEGRAM</h1>
+          <h1 className="my-2 font-bold">ENAGRAM</h1>
           <button onClick={() => setMobileOpen(false)} className="ml-auto">
             <X size={24} />
           </button>

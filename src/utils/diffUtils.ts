@@ -1,4 +1,4 @@
-import { diffWords } from "diff";
+import { diffChars } from "diff";
 
 export type DiffChunk = {
   value: string;
@@ -6,8 +6,7 @@ export type DiffChunk = {
 };
 
 export const compareTexts = (text1: string, text2: string): DiffChunk[] => {
-  const result = diffWords(text1, text2);
-
+  const result = diffChars(text1, text2);
   return result.map((part) => ({
     value: part.value,
     type: part.added ? "added" : part.removed ? "removed" : "unchanged",

@@ -5,22 +5,21 @@ import { compareTexts } from "./utils/diffUtils";
 import type { DiffChunk } from "./utils/diffUtils";
 import { Plus } from "lucide-react";
 
+type AppState = "editing" | "loading" | "compared";
+
 function App() {
   const [original, setOriginal] = useState("");
   const [modified, setModified] = useState("");
   const [originalDiff, setOriginalDiff] = useState<DiffChunk[] | null>(null);
   const [modifiedDiff, setModifiedDiff] = useState<DiffChunk[] | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [appState, setAppState] = useState<AppState>("editing");
   const [progress, setProgress] = useState(0);
 
   const handleCompare = () => {
-    setLoading(true);
+    setAppState("loading");
     setProgress(0);
-    setOriginalDiff(null);
-    setModifiedDiff(null);
 
-    // Simulate progress steps
-    const steps = [20, 45, 70, 90, 100];
+    const steps = [15, 30, 50, 70, 85, 100];
     let i = 0;
     const interval = setInterval(() => {
       if (i < steps.length) {
@@ -31,12 +30,14 @@ function App() {
         const result = compareTexts(original, modified);
         setOriginalDiff(result.filter((c) => c.type !== "added"));
         setModifiedDiff(result.filter((c) => c.type !== "removed"));
-        setLoading(false);
+        // Small delay so user sees 100% before panels reappear
+        setTimeout(() => setAppState("compared"), 400);
       }
-    }, 180);
+    }, 200);
   };
 
   const handleReset = () => {
+    setAppState("editing");
     setOriginalDiff(null);
     setModifiedDiff(null);
     setOriginal("");
@@ -44,7 +45,14 @@ function App() {
     setProgress(0);
   };
 
-  const isCompared = originalDiff !== null;
+  const deletions =
+    originalDiff
+      ?.filter((c) => c.type === "removed")
+      .reduce((acc, c) => acc + c.value.length, 0) ?? 0;
+  const insertions =
+    modifiedDiff
+      ?.filter((c) => c.type === "added")
+      .reduce((acc, c) => acc + c.value.length, 0) ?? 0;
 
   return (
     <div className="flex min-h-screen">
@@ -62,47 +70,15 @@ function App() {
           </button>
         </div>
 
-        {/* Text panels */}
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex-1">
-            <TextPanel
-              value={original}
-              onChange={(v) => {
-                setOriginal(v);
-                if (isCompared) handleReset();
-              }}
-              diff={originalDiff}
-              label="Source Text (A):"
-            />
-          </div>
-
-          <div className="flex items-center justify-center text-2xl text-gray-400 py-1 md:py-0 md:px-2">
-            <span className="md:hidden">↕</span>
-            <span className="hidden md:inline">↔</span>
-          </div>
-
-          <div className="flex-1">
-            <TextPanel
-              value={modified}
-              onChange={(v) => {
-                setModified(v);
-                if (isCompared) handleReset();
-              }}
-              diff={modifiedDiff}
-              label="Target Text (B):"
-            />
-          </div>
-        </div>
-
-        {/* Loading indicator */}
-        {loading && (
-          <div className="flex justify-center mt-8">
-            <div className="bg-white rounded-2xl shadow-md border border-gray-100 px-8 py-5 flex items-center gap-4 w-full max-w-sm">
-              <div className="w-9 h-9 rounded-full border-2 border-blue-500 flex items-center justify-center flex-shrink-0">
-                <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
+        {/* LOADING STATE — panels hidden */}
+        {appState === "loading" && (
+          <div className="flex flex-col items-center justify-center py-24 gap-6">
+            <div className="bg-white rounded-2xl shadow-md border border-gray-100 px-8 py-6 flex items-center gap-4 w-full max-w-sm">
+              <div className="w-10 h-10 rounded-full border-2 border-blue-500 flex items-center justify-center flex-shrink-0">
+                <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-gray-500 mb-1">
+                <p className="text-sm text-gray-500 mb-2">
                   Converting...Thank you For your Patience
                 </p>
                 <div className="flex items-center gap-3">
@@ -121,50 +97,66 @@ function App() {
           </div>
         )}
 
-        {/* Stats bar after compare */}
-        {isCompared &&
-          !loading &&
-          (() => {
-            const deletions = originalDiff!
-              .filter((c) => c.type === "removed")
-              .reduce((acc, c) => acc + c.value.length, 0);
-            const insertions = modifiedDiff!
-              .filter((c) => c.type === "added")
-              .reduce((acc, c) => acc + c.value.length, 0);
-            return (
-              <div className="flex justify-center mt-6">
+        {/* TEXT PANELS — shown in editing and compared states */}
+        {appState !== "loading" && (
+          <>
+            {/* Stats bar (only after compare) */}
+            {appState === "compared" && (
+              <div className="flex justify-center mb-5">
                 <div className="text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2">
                   ■ Comparison completed &nbsp;|&nbsp; Deletions:{" "}
-                  <span className="text-red-500 font-medium">{deletions}</span>{" "}
+                  <span className="text-red-500 font-medium">{deletions}</span>
                   &nbsp;|&nbsp; Insertions:{" "}
                   <span className="text-green-600 font-medium">
                     {insertions}
                   </span>
                 </div>
               </div>
-            );
-          })()}
+            )}
 
-        {/* Compare / Clear Button */}
-        {!loading && (
-          <div className="flex justify-center mt-6 md:mt-8">
-            {isCompared ? (
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="flex-1">
+                <TextPanel
+                  value={original}
+                  onChange={(v) => {
+                    setOriginal(v);
+                  }}
+                  diff={appState === "compared" ? originalDiff : null}
+                  label="Source Text (A):"
+                />
+              </div>
+
+              <div className="flex items-center justify-center text-2xl text-gray-400 py-1 md:py-0 md:px-2">
+                <span className="md:hidden">↕</span>
+                <span className="hidden md:inline">↔</span>
+              </div>
+
+              <div className="flex-1">
+                <TextPanel
+                  value={modified}
+                  onChange={(v) => {
+                    setModified(v);
+                  }}
+                  diff={appState === "compared" ? modifiedDiff : null}
+                  label="Target Text (B):"
+                />
+              </div>
+            </div>
+
+            {/* Single შედარება button always shown */}
+            <div className="flex justify-center mt-6 md:mt-8">
               <button
-                onClick={handleReset}
-                className="bg-[#383A4899] text-white w-full md:w-40 h-12 rounded-xl shadow-md cursor-pointer opacity-100 text-[14px] hover:opacity-70 transition duration-200"
-              >
-                გასუფთავება
-              </button>
-            ) : (
-              <button
-                onClick={handleCompare}
-                disabled={!original.trim() || !modified.trim()}
-                className="bg-[#4A6CF7] text-white w-full md:w-40 h-12 rounded-xl shadow-md cursor-pointer opacity-100 text-[14px] hover:opacity-80 transition duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                onClick={appState === "compared" ? handleReset : handleCompare}
+                disabled={
+                  appState === "editing" &&
+                  (!original.trim() || !modified.trim())
+                }
+                className="bg-[#4A6CF7] text-white w-full md:w-40 h-12 rounded-xl shadow-md cursor-pointer text-[14px] hover:opacity-80 transition duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 შედარება
               </button>
-            )}
-          </div>
+            </div>
+          </>
         )}
       </div>
     </div>

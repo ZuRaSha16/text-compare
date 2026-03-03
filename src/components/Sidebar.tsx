@@ -1,7 +1,6 @@
 import { useState } from "react";
 import logo from "../assets/logo.png";
 import user from "../assets/user.png";
-
 import {
   AudioLines,
   File,
@@ -13,8 +12,54 @@ import {
   X,
 } from "lucide-react";
 
-export default function Sidebar() {
+export type PageKey =
+  | "compare"
+  | "spellcheck"
+  | "voice-to-text"
+  | "text-to-voice"
+  | "pdf";
+
+interface SidebarProps {
+  activePage: PageKey;
+  onNavigate: (page: PageKey) => void;
+}
+
+const navItems: { key: PageKey; label: string; icon: React.ReactNode }[] = [
+  { key: "spellcheck", label: "მართლმწერი", icon: <SpellCheck size={20} /> },
+  { key: "compare", label: "ტექსტის შედარება", icon: <Text size={20} /> },
+  { key: "voice-to-text", label: "ხმა → ტექსტი", icon: <Mic size={20} /> },
+  {
+    key: "text-to-voice",
+    label: "ტექსტი → ხმა",
+    icon: <AudioLines size={20} />,
+  },
+  { key: "pdf", label: "PDF კონვერტაცია", icon: <File size={20} /> },
+];
+
+export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const NavButton = ({ item }: { item: (typeof navItems)[number] }) => {
+    const isActive = activePage === item.key;
+    return (
+      <button
+        onClick={() => {
+          onNavigate(item.key);
+          setMobileOpen(false);
+        }}
+        className={`flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg transition-all 
+          duration-200 whitespace-nowrap cursor-pointer
+          ${
+            isActive
+              ? "bg-white text-[#132450] font-semibold shadow-sm"
+              : "opacity-70"
+          }`}
+      >
+        {item.icon}
+        {item.label}
+      </button>
+    );
+  };
 
   return (
     <>
@@ -43,7 +88,6 @@ export default function Sidebar() {
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Logo */}
         <div className="flex gap-4 mb-10">
           <img src={logo} alt="Enagram Logo" className="w-[42.65px]" />
           <h1 className="my-2 font-bold">ENAGRAM</h1>
@@ -51,32 +95,11 @@ export default function Sidebar() {
             <X size={24} />
           </button>
         </div>
-
-        {/* Navigation */}
         <nav className="space-y-6 -mx-3.5">
-          <button className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg opacity-70 hover:opacity-100 hover:bg-white/10 transition-all duration-200">
-            <SpellCheck size={20} />
-            მართლმწერი
-          </button>
-          <button className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg bg-white text-[#132450] font-semibold shadow-sm">
-            <Text size={20} />
-            ტექსტის შედარება
-          </button>
-          <button className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg opacity-70 hover:opacity-100 hover:bg-white/10 transition-all duration-200">
-            <Mic size={20} />
-            ხმა → ტექსტი
-          </button>
-          <button className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg opacity-70 hover:opacity-100 hover:bg-white/10 transition-all duration-200">
-            <AudioLines size={20} />
-            ტექსტი → ხმა
-          </button>
-          <button className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg opacity-70 hover:opacity-100 hover:bg-white/10 transition-all duration-200">
-            <File size={20} />
-            PDF კონვერტაცია
-          </button>
+          {navItems.map((item) => (
+            <NavButton key={item.key} item={item} />
+          ))}
         </nav>
-
-        {/* User Panel */}
         <div className="mt-auto mb-1 w-full">
           <div className="border border-[#9EB9FF33] mb-4 -mx-6"></div>
           <div className="flex items-center justify-between">
@@ -96,32 +119,13 @@ export default function Sidebar() {
       <div className="hidden md:flex bg-[#132450] text-white w-60 max-h-screen flex-col p-6">
         <div className="flex gap-4 mb-10">
           <img src={logo} alt="Enagram Logo" className="w-[42.65px]" />
-          <h1 className="my-2 font-bold">ENEGRAM</h1>
+          <h1 className="my-2 font-bold">ENAGRAM</h1>
         </div>
-
         <nav className="space-y-6 -mx-3.5">
-          <button className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg opacity-70 hover:opacity-100 hover:bg-white/10 transition-all duration-200">
-            <SpellCheck size={20} />
-            მართლმწერი
-          </button>
-          <button className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg bg-white text-[#132450] font-semibold shadow-sm">
-            <Text size={20} />
-            ტექსტის შედარება
-          </button>
-          <button className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg opacity-70 hover:opacity-100 hover:bg-white/10 transition-all duration-200">
-            <Mic size={20} />
-            ხმა → ტექსტი
-          </button>
-          <button className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg opacity-70 hover:opacity-100 hover:bg-white/10 transition-all duration-200">
-            <AudioLines size={20} />
-            ტექსტი → ხმა
-          </button>
-          <button className="flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg opacity-70 hover:opacity-100 hover:bg-white/10 transition-all duration-200">
-            <File size={20} />
-            PDF კონვერტაცია
-          </button>
+          {navItems.map((item) => (
+            <NavButton key={item.key} item={item} />
+          ))}
         </nav>
-
         <div className="mt-auto mb-1 w-full">
           <div className="border border-[#9EB9FF33] mb-4 -mx-6"></div>
           <div className="flex items-center justify-between">

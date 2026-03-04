@@ -29,6 +29,7 @@ function App() {
       setVisible(true);
     }, 180);
   };
+
   const [original, setOriginal] = useState("");
   const [modified, setModified] = useState("");
   const [originalDiff, setOriginalDiff] = useState<DiffChunk[] | null>(null);
@@ -83,23 +84,31 @@ function App() {
       <Sidebar activePage={activePage} onNavigate={handleNavigate} />
 
       <div
-        className="flex-1 p-4 pt-16 sm:p-6 sm:pt-20 md:pt-10 md:p-10 bg-white transition-all duration-200"
+        className="flex-1 p-4 pt-36 sm:p-6 sm:pt-40 lg:pt-10 lg:p-10 bg-white transition-all duration-200"
         style={{
           opacity: visible ? 1 : 0,
           transform: visible ? "translateY(0)" : "translateY(8px)",
         }}
       >
-        {/* Show coming soon for non-compare pages */}
         {isComingSoon ? (
           <ComingSoon label={comingSoonPages[activePage]!} />
         ) : (
           <>
             {/* Header controls */}
-            <div className="flex flex-col gap-3 mb-6 md:flex-row md:justify-between md:items-center md:mb-8">
-              <select className="border px-3 py-2 rounded-lg w-full md:w-auto">
-                <option>ქართული</option>
-                <option>English</option>
-              </select>
+            <div className="flex flex-col gap-3 mb-6 md:flex-row md:justify-between md:items-center md:mb-8 ">
+              <div className="flex flex-col gap-6 md:flex-row md:items-center">
+                <select className="border px-3 py-2 rounded-lg w-full md:w-auto cursor-pointer border-[#E0E0E0] text-[#383A48]">
+                  <option>ქართული</option>
+                  <option>English</option>
+                </select>
+                <label className="flex items-center gap-2 text-sm text-[#383A48] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4  rounded cursor-pointer"
+                  />
+                  ფორმატის შენარჩუნება
+                </label>
+              </div>
               <button
                 onClick={isDone ? handleNewSession : undefined}
                 disabled={!isDone}
@@ -111,11 +120,11 @@ function App() {
                   }`}
               >
                 <Plus size={20} />
-                ახალის გახსნა
+                ახლის გახსნა
               </button>
             </div>
 
-            {/* LOADING STATE */}
+            {/* loading state */}
             {appState === "loading" && (
               <div
                 className="flex flex-col items-center justify-center gap-6"
@@ -151,7 +160,7 @@ function App() {
               </div>
             )}
 
-            {/* TEXT PANELS */}
+            {/* text panels */}
             {appState !== "loading" && (
               <>
                 {appState === "compared" && (

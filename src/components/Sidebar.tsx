@@ -51,11 +51,12 @@ function NavList({
     pill.style.top = `${el.offsetTop}px`;
     pill.style.height = `${el.offsetHeight}px`;
   };
+
   useEffect(() => {
     updatePill(activeIdxRef.current, false);
-
     setReady(true);
   }, []);
+
   useEffect(() => {
     activeIdxRef.current = activeIdx;
     if (ready) updatePill(activeIdx, true);
@@ -103,16 +104,19 @@ function NavList({
 
 export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleNavigate = (page: PageKey) => {
     onNavigate(page);
     setMobileOpen(false);
   };
 
+  const activeItem = navItems.find((i) => i.key === activePage);
+
   return (
     <>
-      {/* Mobile Header */}
-      <div className="fixed top-0 left-0 right-0 flex md:hidden bg-[#132450] text-white w-full p-4 justify-between items-center z-40">
+      {/* Mobile/Tablet Header */}
+      <div className="fixed top-0 left-0 right-0 flex lg:hidden bg-[#132450] text-white w-full p-4 justify-between items-center z-40">
         <div className="flex items-center gap-2">
           <img src={logo} alt="Enagram Logo" className="w-[42.65px]" />
           <h1 className="font-bold">ENAGRAM</h1>
@@ -125,17 +129,74 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
         </button>
       </div>
 
-      {/* Mobile Backdrop */}
+      {/* Mobile/Tablet Page Switcher Bar */}
+      <div className="fixed top-18 left-0 right-0 z-30 lg:hidden bg-white border-b border-gray-100 px-4 py-5 shadow-sm">
+        <div className="relative">
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="flex items-center gap-2 text-[#132450] font-semibold text-sm cursor-pointer"
+          >
+            <span className="text-[#4A6CF7]">{activeItem?.icon}</span>
+            <span>{activeItem?.label}</span>
+            <svg
+              className={`w-4 h-4 text-gray-400 ml-0.5 transition-transform duration-200 ${
+                dropdownOpen ? "rotate-180" : ""
+              }`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+
+          {dropdownOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-10 "
+                onClick={() => setDropdownOpen(false)}
+              />
+              <div className="absolute top-8 left-0 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20 min-w-52.5 ">
+                {navItems.map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => {
+                      handleNavigate(item.key);
+                      setDropdownOpen(false);
+                    }}
+                    className={`flex items-center gap-3 w-full px-4 py-2.5 text-sm transition-colors cursor-pointer
+                      ${
+                        activePage === item.key
+                          ? "text-[#4A6CF7] font-semibold bg-blue-50"
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                  >
+                    {item.icon}
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile/Tablet Backdrop */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
-      {/* Mobile Drawer */}
+      {/* Mobile/Tablet Drawer */}
       <div
-        className={`fixed top-0 left-0 h-full w-60 bg-[#132450] text-white p-6 flex flex-col transform transition-transform duration-300 z-50 md:hidden ${
+        className={`fixed top-0 left-0 h-full w-60 bg-[#132450] text-white p-6 flex flex-col transform transition-transform duration-300 z-50 lg:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -153,8 +214,8 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
         <UserPanel />
       </div>
 
-      {/* Desktop Sidebar */}
-      <div className="hidden md:flex bg-[#132450] text-white w-60 max-h-screen flex-col p-6">
+      {/* Desktop Sidebar - lg and above */}
+      <div className="hidden lg:flex bg-[#132450] text-white w-60 max-h-screen flex-col p-6">
         <div className="flex gap-4 mb-10">
           <img src={logo} alt="Enagram Logo" className="w-[42.65px]" />
           <h1 className="my-2 font-bold">ENAGRAM</h1>

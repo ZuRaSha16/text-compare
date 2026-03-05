@@ -95,7 +95,7 @@ function App() {
         ) : (
           <>
             {/* Header controls */}
-            <div className="flex flex-col gap-3 mb-6 md:flex-row md:justify-between md:items-center md:mb-8 ">
+            <div className="flex flex-col gap-3 mb-3 md:flex-row md:justify-between md:items-center md:mb-5">
               <div className="flex flex-col gap-6 md:flex-row md:items-center">
                 <select className="border px-3 py-2 rounded-lg w-full md:w-auto cursor-pointer border-[#E0E0E0] text-[#383A48]">
                   <option>ქართული</option>
@@ -123,6 +123,7 @@ function App() {
                 ახლის გახსნა
               </button>
             </div>
+            <div className="border border-[#EDEDED] w-full mb-8" />
 
             {/* loading state */}
             {appState === "loading" && (
@@ -166,12 +167,12 @@ function App() {
                 {appState === "compared" && (
                   <div className="flex justify-center mb-5">
                     <div className="text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2">
-                      ■ Comparison completed &nbsp;|&nbsp; Deletions:{" "}
-                      <span className="text-red-500 font-medium">
+                      ■ შედარება დასრულდა &nbsp;|&nbsp; წაიშალა:{" "}
+                      <span className="text-[#B50022] font-medium">
                         {deletions}
                       </span>
-                      &nbsp;|&nbsp; Insertions:{" "}
-                      <span className="text-green-600 font-medium">
+                      &nbsp;|&nbsp; დაემატა:{" "}
+                      <span className="text-[#3EBC5E] font-medium">
                         {insertions}
                       </span>
                     </div>

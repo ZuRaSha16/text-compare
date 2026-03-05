@@ -4,7 +4,7 @@ import TextPanel from "./components/TextPanel";
 import ComingSoon from "./components/ComingSoon";
 import { compareTexts } from "./utils/diffUtils";
 import type { DiffChunk } from "./utils/diffUtils";
-import { Plus } from "lucide-react";
+import { Plus, RotateCcw } from "lucide-react";
 import { translations, type Lang } from "./utils/i18n";
 
 type AppState = "editing" | "loading" | "compared";
@@ -54,6 +54,15 @@ function App() {
   const [progress, setProgress] = useState(0);
 
   const handleCompare = () => {
+    if (appState === "compared") {
+      setOriginalDiff(null);
+      setModifiedDiff(null);
+      setOriginal("");
+      setModified("");
+      setAppState("editing");
+      setProgress(0);
+      return;
+    }
     setAppState("loading");
     setProgress(0);
 
@@ -244,12 +253,12 @@ function App() {
                   <button
                     onClick={handleCompare}
                     disabled={
-                      appState === "compared" ||
-                      !original.trim() ||
-                      !modified.trim()
+                      appState !== "compared" &&
+                      (!original.trim() || !modified.trim())
                     }
-                    className="bg-[#4A6CF7] text-white w-full md:w-40 h-12 rounded-xl shadow-md text-[14px] transition duration-200 disabled:bg-[#383A4899] disabled:cursor-not-allowed cursor-pointer"
+                    className="bg-[#4A6CF7] text-white w-full md:w-40 h-12 rounded-xl shadow-md text-[14px] transition duration-200 disabled:bg-[#383A4899] disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
                   >
+                    {appState === "compared" && <RotateCcw size={15} />}
                     {t.compare_btn}
                   </button>
                 </div>

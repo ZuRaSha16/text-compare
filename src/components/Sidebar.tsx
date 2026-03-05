@@ -1,7 +1,17 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useRef, useEffect } from "react";
 import logo from "../assets/logo.png";
-import { AudioLines, File, Text, Mic, SpellCheck, Menu, X } from "lucide-react";
+import {
+  AudioLines,
+  File,
+  Text,
+  Mic,
+  SpellCheck,
+  Menu,
+  X,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 import UserPanel from "./UserPanel";
 import { translations, type Lang, type Translations } from "../utils/i18n";
 
@@ -16,6 +26,8 @@ interface SidebarProps {
   activePage: PageKey;
   onNavigate: (page: PageKey) => void;
   lang: Lang;
+  collapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
 function getNavItems(t: Translations) {
@@ -44,10 +56,12 @@ function NavList({
   activePage,
   onNavigate,
   lang,
+  collapsed,
 }: {
   activePage: PageKey;
   onNavigate: (p: PageKey) => void;
   lang: Lang;
+  collapsed: boolean;
 }) {
   const t = translations[lang];
   const navItems = getNavItems(t);
@@ -105,11 +119,13 @@ function NavList({
                 btnRefs.current[idx] = el;
               }}
               onClick={() => onNavigate(item.key)}
-              className={`relative z-10 flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg whitespace-nowrap cursor-pointer transition-colors duration-200
+              title={collapsed ? item.label : undefined}
+              className={`relative z-10 flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg cursor-pointer transition-colors duration-200
+                ${collapsed ? "justify-center" : "whitespace-nowrap"}
                 ${isActive ? "text-[#132450] font-semibold" : "text-white opacity-70"}`}
             >
               {item.icon}
-              {item.label}
+              {!collapsed && <span>{item.label}</span>}
             </button>
           );
         })}
@@ -122,6 +138,8 @@ export default function Sidebar({
   activePage,
   onNavigate,
   lang,
+  collapsed,
+  onToggleCollapse,
 }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -162,9 +180,7 @@ export default function Sidebar({
             <span className="text-[#4A6CF7]">{activeItem?.icon}</span>
             <span>{activeItem?.label}</span>
             <svg
-              className={`w-4 h-4 text-gray-400 ml-0.5 transition-transform duration-200 ${
-                dropdownOpen ? "rotate-180" : ""
-              }`}
+              className={`w-4 h-4 text-gray-400 ml-0.5 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -193,11 +209,7 @@ export default function Sidebar({
                       setDropdownOpen(false);
                     }}
                     className={`flex items-center gap-3 w-full px-4 py-2.5 text-sm transition-colors cursor-pointer
-                      ${
-                        activePage === item.key
-                          ? "text-[#4A6CF7] font-semibold bg-blue-50"
-                          : "text-gray-600 hover:bg-gray-50"
-                      }`}
+                      ${activePage === item.key ? "text-[#4A6CF7] font-semibold bg-blue-50" : "text-gray-600 hover:bg-gray-50"}`}
                   >
                     {item.icon}
                     {item.label}
@@ -237,22 +249,56 @@ export default function Sidebar({
           activePage={activePage}
           onNavigate={handleNavigate}
           lang={lang}
+          collapsed={false}
         />
         <UserPanel />
       </div>
 
-      {/* Desktop Sidebar - lg and above */}
-      <div className="hidden lg:flex bg-[#132450] text-white w-60 max-h-screen flex-col p-6">
-        <div className="flex gap-4 mb-10">
-          <img src={logo} alt="Enagram Logo" className="w-[42.65px]" />
-          <h1 className="my-2 font-bold">ENAGRAM</h1>
+      {/* Desktop Sidebar */}
+      <div
+        className={`hidden lg:flex bg-[#132450] text-white max-h-screen flex-col p-6 transition-all duration-300 relative
+          ${collapsed ? "w-18" : "w-60"}`}
+      >
+        <div
+          className={`flex mb-10 items-center ${collapsed ? "justify-center" : "justify-between"}`}
+        >
+          <div className="flex items-center gap-4">
+            <img
+              src={logo}
+              alt="Enagram Logo"
+              className="w-[42.65px] shrink-0"
+            />
+            {!collapsed && <h1 className="font-bold">ENAGRAM</h1>}
+          </div>
+          {!collapsed && (
+            <button
+              onClick={onToggleCollapse}
+              title="Collapse sidebar"
+              className="text-white opacity-50 hover:opacity-100 cursor-pointer transition-opacity duration-200"
+            >
+              <ChevronsLeft size={18} />
+            </button>
+          )}
         </div>
+
+        {collapsed && (
+          <button
+            onClick={onToggleCollapse}
+            title="Expand sidebar"
+            className="mb-6 text-white opacity-50 hover:opacity-100 cursor-pointer transition-opacity duration-200 flex justify-center"
+          >
+            <ChevronsRight size={18} />
+          </button>
+        )}
+
         <NavList
           activePage={activePage}
           onNavigate={handleNavigate}
           lang={lang}
+          collapsed={collapsed}
         />
-        <UserPanel />
+
+        {!collapsed && <UserPanel />}
       </div>
     </>
   );

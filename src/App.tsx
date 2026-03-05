@@ -18,6 +18,18 @@ function App() {
     setLang(newLang);
     localStorage.setItem("lang", newLang);
   };
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(
+    () => localStorage.getItem("sidebarCollapsed") === "true",
+  );
+
+  const handleToggleCollapse = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem("sidebarCollapsed", String(next));
+      return next;
+    });
+  };
+
   const t = translations[lang];
 
   const [activePage, setActivePage] = useState<PageKey>("compare");
@@ -96,6 +108,8 @@ function App() {
         activePage={activePage}
         onNavigate={handleNavigate}
         lang={lang}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={handleToggleCollapse}
       />
 
       <div

@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import logo from "../assets/logo.png";
 import { AudioLines, File, Text, Mic, SpellCheck, Menu, X } from "lucide-react";
 import UserPanel from "./UserPanel";
+import { translations, type Lang, type Translations } from "../utils/i18n";
 
 export type PageKey =
   | "compare"
@@ -14,27 +15,42 @@ export type PageKey =
 interface SidebarProps {
   activePage: PageKey;
   onNavigate: (page: PageKey) => void;
+  lang: Lang;
 }
 
-const navItems: { key: PageKey; label: string; icon: React.ReactNode }[] = [
-  { key: "spellcheck", label: "მართლმწერი", icon: <SpellCheck size={20} /> },
-  { key: "compare", label: "ტექსტის შედარება", icon: <Text size={20} /> },
-  { key: "voice-to-text", label: "ხმა → ტექსტი", icon: <Mic size={20} /> },
-  {
-    key: "text-to-voice",
-    label: "ტექსტი → ხმა",
-    icon: <AudioLines size={20} />,
-  },
-  { key: "pdf", label: "PDF კონვერტაცია", icon: <File size={20} /> },
-];
+function getNavItems(t: Translations) {
+  return [
+    {
+      key: "spellcheck" as PageKey,
+      label: t.spellcheck,
+      icon: <SpellCheck size={20} />,
+    },
+    { key: "compare" as PageKey, label: t.compare, icon: <Text size={20} /> },
+    {
+      key: "voice-to-text" as PageKey,
+      label: t.voiceToText,
+      icon: <Mic size={20} />,
+    },
+    {
+      key: "text-to-voice" as PageKey,
+      label: t.textToVoice,
+      icon: <AudioLines size={20} />,
+    },
+    { key: "pdf" as PageKey, label: t.pdf, icon: <File size={20} /> },
+  ];
+}
 
 function NavList({
   activePage,
   onNavigate,
+  lang,
 }: {
   activePage: PageKey;
   onNavigate: (p: PageKey) => void;
+  lang: Lang;
 }) {
+  const t = translations[lang];
+  const navItems = getNavItems(t);
   const activeIdx = navItems.findIndex((i) => i.key === activePage);
   const btnRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const pillRef = useRef<HTMLDivElement | null>(null);
@@ -102,9 +118,16 @@ function NavList({
   );
 }
 
-export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
+export default function Sidebar({
+  activePage,
+  onNavigate,
+  lang,
+}: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const t = translations[lang];
+  const navItems = getNavItems(t);
 
   const handleNavigate = (page: PageKey) => {
     onNavigate(page);
@@ -158,10 +181,10 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
           {dropdownOpen && (
             <>
               <div
-                className="fixed inset-0 z-10 "
+                className="fixed inset-0 z-10"
                 onClick={() => setDropdownOpen(false)}
               />
-              <div className="absolute top-8 left-0 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20 min-w-52.5 ">
+              <div className="absolute top-8 left-0 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20 min-w-52.5">
                 {navItems.map((item) => (
                   <button
                     key={item.key}
@@ -210,7 +233,11 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
             <X size={24} />
           </button>
         </div>
-        <NavList activePage={activePage} onNavigate={handleNavigate} />
+        <NavList
+          activePage={activePage}
+          onNavigate={handleNavigate}
+          lang={lang}
+        />
         <UserPanel />
       </div>
 
@@ -220,7 +247,11 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
           <img src={logo} alt="Enagram Logo" className="w-[42.65px]" />
           <h1 className="my-2 font-bold">ENAGRAM</h1>
         </div>
-        <NavList activePage={activePage} onNavigate={handleNavigate} />
+        <NavList
+          activePage={activePage}
+          onNavigate={handleNavigate}
+          lang={lang}
+        />
         <UserPanel />
       </div>
     </>

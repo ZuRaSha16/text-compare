@@ -5,17 +5,21 @@ import ComingSoon from "./components/ComingSoon";
 import { compareTexts } from "./utils/diffUtils";
 import type { DiffChunk } from "./utils/diffUtils";
 import { Plus } from "lucide-react";
+import { translations, type Lang } from "./utils/i18n";
 
 type AppState = "editing" | "loading" | "compared";
 
-const comingSoonPages: Partial<Record<PageKey, string>> = {
-  spellcheck: "მართლმწერი",
-  "voice-to-text": "ხმა → ტექსტი",
-  "text-to-voice": "ტექსტი → ხმა",
-  pdf: "PDF კონვერტაცია",
-};
-
 function App() {
+  const [lang, setLang] = useState<Lang>(
+    () => (localStorage.getItem("lang") as Lang) ?? "ka",
+  );
+
+  const handleLangChange = (newLang: Lang) => {
+    setLang(newLang);
+    localStorage.setItem("lang", newLang);
+  };
+  const t = translations[lang];
+
   const [activePage, setActivePage] = useState<PageKey>("compare");
   const [visible, setVisible] = useState(true);
   const prevPage = useRef<PageKey>("compare");
@@ -77,11 +81,22 @@ function App() {
       ?.filter((c) => c.type === "added")
       .reduce((acc, c) => acc + c.value.length, 0) ?? 0;
 
+  const comingSoonPages: Partial<Record<PageKey, string>> = {
+    spellcheck: t.spellcheck,
+    "voice-to-text": t.voiceToText,
+    "text-to-voice": t.textToVoice,
+    pdf: t.pdf,
+  };
+
   const isComingSoon = activePage !== "compare";
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar activePage={activePage} onNavigate={handleNavigate} />
+      <Sidebar
+        activePage={activePage}
+        onNavigate={handleNavigate}
+        lang={lang}
+      />
 
       <div
         className="flex-1 p-4 pt-36 sm:p-6 sm:pt-40 lg:pt-10 lg:p-10 bg-white transition-all duration-200"
@@ -91,22 +106,29 @@ function App() {
         }}
       >
         {isComingSoon ? (
-          <ComingSoon label={comingSoonPages[activePage]!} />
+          <ComingSoon
+            label={comingSoonPages[activePage]!}
+            comingSoonText={t.comingSoon}
+          />
         ) : (
           <>
             {/* Header controls */}
             <div className="flex flex-col gap-3 mb-3 md:flex-row md:justify-between md:items-center md:mb-5">
               <div className="flex flex-col gap-6 md:flex-row md:items-center">
-                <select className="border px-3 py-2 rounded-lg w-full md:w-auto cursor-pointer border-[#E0E0E0] text-[#383A48]">
-                  <option>ქართული</option>
-                  <option>English</option>
+                <select
+                  value={lang}
+                  onChange={(e) => handleLangChange(e.target.value as Lang)}
+                  className="border px-3 py-2 rounded-lg w-full md:w-auto cursor-pointer border-[#E0E0E0] text-[#383A48]"
+                >
+                  <option value="ka">{t.georgian}</option>
+                  <option value="en">{t.english}</option>
                 </select>
                 <label className="flex items-center gap-2 text-sm text-[#383A48] cursor-pointer">
                   <input
                     type="checkbox"
-                    className="w-4 h-4  rounded cursor-pointer"
+                    className="w-4 h-4 rounded cursor-pointer"
                   />
-                  ფორმატის შენარჩუნება
+                  {t.keepFormat}
                 </label>
               </div>
               <button
@@ -120,7 +142,7 @@ function App() {
                   }`}
               >
                 <Plus size={20} />
-                ახლის გახსნა
+                {t.newSession}
               </button>
             </div>
             <div className="border border-[#EDEDED] w-full mb-8" />
@@ -136,9 +158,7 @@ function App() {
                     <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm text-gray-500 mb-2">
-                      Converting...Thank you For your Patience
-                    </p>
+                    <p className="text-sm text-gray-500 mb-2">{t.converting}</p>
                     <div className="flex items-center gap-3">
                       <span className="text-base font-semibold text-gray-700 w-10">
                         {progress}%
@@ -156,7 +176,7 @@ function App() {
                   disabled
                   className="bg-[#4A6CF7] text-white w-full md:w-40 h-12 rounded-xl shadow-md text-[14px] transition duration-200 disabled:bg-[#383A4899] disabled:cursor-not-allowed cursor-pointer"
                 >
-                  შედარება
+                  {t.compare_btn}
                 </button>
               </div>
             )}
@@ -167,11 +187,11 @@ function App() {
                 {appState === "compared" && (
                   <div className="flex justify-center mb-5">
                     <div className="text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2">
-                      ■ შედარება დასრულდა &nbsp;|&nbsp; წაიშალა:{" "}
+                      {t.comparisonDone} &nbsp;|&nbsp; {t.deleted}:{" "}
                       <span className="text-[#B50022] font-medium">
                         {deletions}
                       </span>
-                      &nbsp;|&nbsp; დაემატა:{" "}
+                      &nbsp;|&nbsp; {t.added}:{" "}
                       <span className="text-[#3EBC5E] font-medium">
                         {insertions}
                       </span>
@@ -186,6 +206,7 @@ function App() {
                       onChange={setOriginal}
                       diff={appState === "compared" ? originalDiff : null}
                       readOnly={appState === "compared"}
+                      placeholder={t.placeholder}
                     />
                   </div>
 
@@ -200,6 +221,7 @@ function App() {
                       onChange={setModified}
                       diff={appState === "compared" ? modifiedDiff : null}
                       readOnly={appState === "compared"}
+                      placeholder={t.placeholder}
                     />
                   </div>
                 </div>
@@ -214,7 +236,7 @@ function App() {
                     }
                     className="bg-[#4A6CF7] text-white w-full md:w-40 h-12 rounded-xl shadow-md text-[14px] transition duration-200 disabled:bg-[#383A4899] disabled:cursor-not-allowed cursor-pointer"
                   >
-                    შედარება
+                    {t.compare_btn}
                   </button>
                 </div>
               </>

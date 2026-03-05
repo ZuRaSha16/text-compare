@@ -128,7 +128,7 @@ function App() {
             {appState === "loading" && (
               <div
                 className="flex flex-col items-center justify-center gap-6"
-                style={{ height: "calc(100vh - 160px)" }}
+                style={{ height: "calc(100vh - 450px)" }}
               >
                 <div className="bg-white rounded-2xl shadow-md border border-gray-100 px-8 py-6 flex items-center gap-4 w-full max-w-sm">
                   <div className="w-10 h-10 rounded-full border-2 border-blue-500 flex items-center justify-center shrink-0">
